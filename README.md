@@ -64,6 +64,31 @@ Two boards talking over USB:
 3. If danger is detected → photo + data go to Telegram
 4. If the situation changes → Pi uploads the right sketch to the Arduino
 
+## Code
+
+```
+raspberry_pi/
+└── human_detection_telegram.py   # YOLOv8n + OpenCV: finds people on the camera, sends annotated photo to Telegram
+arduino/
+├── flame_temp_alarm.ino          # KY-026 flame sensor + DHT22 temperature → buzzer alarm
+├── gas_alarm_mq135.ino           # MQ-135 gas threshold → buzzer alarm
+├── smoke_level_mq135.ino         # MQ-135 smoke level → LED indicator
+├── temp_humidity_dht22.ino       # temperature & humidity readings
+├── ultrasonic_distance.ino       # HC-SR04 distance for obstacle avoidance
+└── buzzer_test.ino               # buzzer check
+```
+
+**How the person detection works** (`human_detection_telegram.py`): every 15 seconds the Pi takes a 640×480 photo, runs the YOLOv8 nano model, draws boxes around everything it finds with ≥50% confidence and, if one of them is a `person`, sends the photo to Telegram. Old photos are deleted so the SD card doesn't fill up.
+
+Set your own `BOT_TOKEN` and `CHAT_ID` before running:
+
+```bash
+pip install ultralytics opencv-python requests
+python raspberry_pi/human_detection_telegram.py
+```
+
+The Arduino sketches are the sensor modules we built and tested one by one before putting them together on the robot.
+
 ## Cost of components (prototype)
 
 Arduino Uno ~$4 · Raspberry Pi 3 ~$50 · web camera ~$19 · motor driver ~$4 · power bank ~$23 · SD card ~$9 · other sensors ~$92
